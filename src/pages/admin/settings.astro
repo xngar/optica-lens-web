@@ -29,40 +29,83 @@ if (env?.DB) {
 }
 ---
 
-<AdminLayout title="Configuración de la Óptica" activeTab="settings">
+<AdminLayout title="Datos de la Óptica" activeTab="settings">
   <div class="max-w-2xl mx-auto space-y-6">
     <div>
-      <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Información de Contacto y Tienda</h2>
-      <p class="text-xs text-slate-500 mt-0.5">
-        Estos datos se muestran en la cabecera, el pie de página y en los enlaces automáticos de WhatsApp.
+      <h2 class="text-xl font-semibold text-stone-900 tracking-tight">Información Pública y Contacto</h2>
+      <p class="text-xs text-stone-500 mt-1">
+        Estos datos se actualizan inmediatamente en la cabecera, pie de página y enlaces directos de WhatsApp.
       </p>
     </div>
 
-    <form id="settings-form" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+    <form id="settings-form" class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 space-y-5">
       <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nombre de la Óptica</label>
-        <input type="text" name="optical_name" value={config.optical_name} required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+        <label for="optical_name" class="block text-[11px] font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+          Nombre de la Óptica
+        </label>
+        <input
+          type="text"
+          id="optical_name"
+          name="optical_name"
+          value={config.optical_name}
+          required
+          class="w-full px-3.5 py-2.5 min-h-11 rounded-xl border border-stone-200 bg-stone-50/40 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900"
+        />
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Número de WhatsApp (con código de país)</label>
-        <input type="text" name="whatsapp_number" value={config.whatsapp_number} required placeholder="+56912345678" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
-        <p class="text-[11px] text-slate-400 mt-1">Este número recibirá las consultas directas generadas desde la ficha de cada lente.</p>
+        <label for="whatsapp_number" class="block text-[11px] font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+          Número de WhatsApp (con código de país)
+        </label>
+        <input
+          type="tel"
+          id="whatsapp_number"
+          name="whatsapp_number"
+          value={config.whatsapp_number}
+          required
+          placeholder="+56912345678"
+          class="w-full px-3.5 py-2.5 min-h-11 rounded-xl border border-stone-200 bg-stone-50/40 text-sm tabular-nums focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900"
+        />
+        <p class="text-[11px] text-stone-400 mt-1.5">
+          Recibirá las consultas automáticas generadas desde cada ficha de armazón.
+        </p>
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Dirección del Local Físico</label>
-        <input type="text" name="address" value={config.address} required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+        <label for="address" class="block text-[11px] font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+          Dirección del Local
+        </label>
+        <input
+          type="text"
+          id="address"
+          name="address"
+          value={config.address}
+          required
+          class="w-full px-3.5 py-2.5 min-h-11 rounded-xl border border-stone-200 bg-stone-50/40 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900"
+        />
       </div>
 
       <div>
-        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Horarios de Atención</label>
-        <input type="text" name="business_hours" value={config.business_hours} required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+        <label for="business_hours" class="block text-[11px] font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+          Horarios de Atención
+        </label>
+        <input
+          type="text"
+          id="business_hours"
+          name="business_hours"
+          value={config.business_hours}
+          required
+          class="w-full px-3.5 py-2.5 min-h-11 rounded-xl border border-stone-200 bg-stone-50/40 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900"
+        />
       </div>
 
-      <div class="pt-4 flex justify-end">
-        <button type="submit" id="btn-save-settings" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm shadow-sm transition">
-          Guardar Configuración
+      <div class="pt-4 flex items-center justify-end gap-3">
+        <button
+          type="submit"
+          id="btn-save-settings"
+          class="px-6 py-2.5 min-h-11 rounded-full bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs uppercase tracking-wider transition cursor-pointer"
+        >
+          Guardar Cambios
         </button>
       </div>
     </form>
@@ -70,8 +113,21 @@ if (env?.DB) {
 
   <script>
     const form = document.getElementById('settings-form') as HTMLFormElement;
+    const btnSave = document.getElementById('btn-save-settings') as HTMLButtonElement;
+    const toast = document.getElementById('admin-toast');
+
+    function showToast(msg: string) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      btnSave.disabled = true;
+      btnSave.textContent = 'Guardando...';
+
       const fd = new FormData(form);
       const payload: Record<string, string> = {};
       fd.forEach((val, key) => {
@@ -86,13 +142,18 @@ if (env?.DB) {
         });
 
         if (res.ok) {
-          alert('¡Configuraciones guardadas exitosamente!');
-          window.location.reload();
+          showToast('Configuración guardada correctamente');
+          btnSave.disabled = false;
+          btnSave.textContent = 'Guardar Cambios';
         } else {
-          alert('Error al guardar configuraciones');
+          showToast('Error al guardar configuraciones');
+          btnSave.disabled = false;
+          btnSave.textContent = 'Guardar Cambios';
         }
       } catch (err: any) {
-        alert('Error: ' + err.message);
+        showToast('Error: ' + err.message);
+        btnSave.disabled = false;
+        btnSave.textContent = 'Guardar Cambios';
       }
     });
   </script>

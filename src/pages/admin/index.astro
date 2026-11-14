@@ -20,7 +20,10 @@ if (env?.DB) {
       const prodImgs = imgs.filter((i) => i.productId === p.id).sort((a, b) => a.orderIndex - b.orderIndex);
       return {
         ...p,
-        primaryImage: prodImgs.find((i) => i.isPrimary)?.imageUrl || prodImgs[0]?.imageUrl || 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=400&q=80',
+        primaryImage:
+          prodImgs.find((i) => i.isPrimary)?.imageUrl ||
+          prodImgs[0]?.imageUrl ||
+          'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=400&q=80',
       };
     });
 
@@ -32,63 +35,83 @@ if (env?.DB) {
 }
 ---
 
-<AdminLayout title="Gestión de Lentes y Catálogo" activeTab="products">
-  <!-- Tarjetas de métricas -->
+<AdminLayout title="Catálogo de Lentes" activeTab="products">
+  <!-- Tarjetas de métricas con iconos vectoriales y números tabulares -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl font-bold">
-        👓
+    <div class="bg-white p-6 rounded-2xl border border-stone-200/80 flex items-center gap-4">
+      <div class="size-11 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center shrink-0">
+        <svg class="size-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="6.5" cy="14" r="3.5" />
+          <circle cx="17.5" cy="14" r="3.5" />
+          <path d="M10 14h4" />
+          <path d="M3 14V9a2 2 0 0 1 2-2h1" />
+          <path d="M21 14V9a2 2 0 0 0-2-2h-1" />
+        </svg>
       </div>
       <div>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total en Catálogo</p>
-        <p class="text-2xl font-black text-slate-900">{allProducts.length}</p>
+        <p class="text-[11px] font-semibold text-stone-400 uppercase tracking-[0.14em]">Total en Catálogo</p>
+        <p class="text-2xl font-bold text-stone-900 tabular-nums mt-0.5">{allProducts.length}</p>
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
-        ✨
+    <div class="bg-white p-6 rounded-2xl border border-stone-200/80 flex items-center gap-4">
+      <div class="size-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+        <svg class="size-5" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+        </svg>
       </div>
       <div>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Novedades de la Semana</p>
-        <p class="text-2xl font-black text-slate-900">{weeklyCount}</p>
+        <p class="text-[11px] font-semibold text-stone-400 uppercase tracking-[0.14em]">Novedades de la Semana</p>
+        <p class="text-2xl font-bold text-stone-900 tabular-nums mt-0.5">{weeklyCount}</p>
       </div>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
-        📦
+    <div class="bg-white p-6 rounded-2xl border border-stone-200/80 flex items-center gap-4">
+      <div class="size-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+        <svg class="size-5" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
       </div>
       <div>
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lentes en Stock</p>
-        <p class="text-2xl font-black text-slate-900">{inStockCount}</p>
+        <p class="text-[11px] font-semibold text-stone-400 uppercase tracking-[0.14em]">En Stock Inmediato</p>
+        <p class="text-2xl font-bold text-stone-900 tabular-nums mt-0.5">{inStockCount}</p>
       </div>
     </div>
   </div>
 
-  <!-- Barra de Acciones y Filtro -->
-  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-    <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+  <!-- Barra de Acciones y Tabla -->
+  <div class="bg-white rounded-2xl border border-stone-200/80 overflow-hidden">
+    <div class="p-5 border-b border-stone-200/80 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
       <div class="w-full sm:w-96 relative">
+        <label for="search-input" class="sr-only">Buscar por marca, modelo o nombre</label>
         <input
-          type="text"
+          type="search"
           id="search-input"
           placeholder="Buscar por marca, modelo o nombre..."
-          class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+          class="w-full pl-10 pr-4 py-2.5 min-h-10 rounded-xl border border-stone-200 bg-stone-50/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent transition"
         />
-        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <svg
+          class="size-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
       </div>
 
       <a
         href="/admin/products/new"
-        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm shadow-sm transition"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-10 rounded-full bg-stone-900 hover:bg-stone-800 text-white font-semibold text-xs tracking-wide transition"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <svg class="size-4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        <span>Subir Nuevo Lente</span>
+        <span>Nuevo Armazón</span>
       </a>
     </div>
 
@@ -96,110 +119,125 @@ if (env?.DB) {
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse" id="products-table">
         <thead>
-          <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
-            <th class="py-3.5 px-6">Lente / Modelo</th>
+          <tr class="bg-stone-50/80 text-[11px] font-semibold text-stone-500 uppercase tracking-[0.12em] border-b border-stone-200/80">
+            <th class="py-3.5 px-6">Armazón / Modelo</th>
             <th class="py-3.5 px-6">Categoría</th>
             <th class="py-3.5 px-6">Precio</th>
-            <th class="py-3.5 px-6">Novedad Semanal</th>
-            <th class="py-3.5 px-6">Stock</th>
+            <th class="py-3.5 px-6">Destacado</th>
+            <th class="py-3.5 px-6">Disponibilidad</th>
             <th class="py-3.5 px-6 text-right">Acciones</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 text-sm">
+        <tbody class="divide-y divide-stone-100 text-sm">
           {allProducts.length === 0 ? (
             <tr>
-              <td colspan="6" class="py-12 text-center text-slate-400">
-                No hay lentes registrados en el catálogo aún. ¡Haz clic en "Subir Nuevo Lente"!
+              <td colspan="6" class="py-14 text-center text-stone-400 text-sm">
+                No hay armazones registrados aún. Haz clic en "Nuevo Armazón" para publicar el primero.
               </td>
             </tr>
           ) : (
-            allProducts.map((p) => (
-              <tr class="hover:bg-slate-50/80 transition product-row" data-search={`${p.brand} ${p.name} ${p.modelCode || ''} ${p.category}`}>
-                <td class="py-4 px-6">
-                  <div class="flex items-center gap-3">
-                    <img
-                      src={p.primaryImage}
-                      alt={p.name}
-                      class="w-14 h-14 object-cover rounded-xl bg-slate-100 border border-slate-200 shrink-0"
-                      loading="lazy"
-                    />
-                    <div>
-                      <p class="font-bold text-slate-900 leading-tight">{p.name}</p>
-                      <p class="text-xs text-slate-500 font-medium">
-                        {p.brand} {p.modelCode ? `• Ref: ${p.modelCode}` : ''}
-                      </p>
-                      <p class="text-[11px] text-slate-400 mt-0.5">
-                        Color: {p.color} {p.dimensions ? `| ${p.dimensions}` : ''}
-                      </p>
+            allProducts.map((p) => {
+              const inStock = p.status === 'in_stock';
+              return (
+                <tr
+                  class="hover:bg-stone-50/70 transition-colors product-row"
+                  data-search={`${p.brand} ${p.name} ${p.modelCode || ''} ${p.category}`}
+                >
+                  <td class="py-4 px-6">
+                    <div class="flex items-center gap-3.5">
+                      <img
+                        src={p.primaryImage}
+                        alt={p.name}
+                        width="56"
+                        height="56"
+                        class="size-14 object-cover rounded-xl bg-stone-100 border border-stone-200/80 shrink-0"
+                        loading="lazy"
+                      />
+                      <div>
+                        <p class="font-semibold text-stone-900 leading-tight">{p.name}</p>
+                        <p class="text-xs text-stone-500 mt-0.5">
+                          {p.brand} {p.modelCode ? `· Ref: ${p.modelCode}` : ''}
+                        </p>
+                        <p class="text-[11px] text-stone-400 mt-0.5 tabular-nums">
+                          {p.color} {p.dimensions ? `| ${p.dimensions}` : ''}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td class="py-4 px-6">
-                  <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 capitalize">
-                    {p.category}
-                  </span>
-                </td>
-                <td class="py-4 px-6 font-semibold text-slate-900">
-                  {p.priceOnRequest ? (
-                    <span class="text-xs text-slate-500 italic">Consultar</span>
-                  ) : (
-                    <span>${p.price ? p.price.toLocaleString('es-CL') : '0'}</span>
-                  )}
-                </td>
-                <td class="py-4 px-6">
-                  {p.isWeeklyFeature ? (
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
-                      <span>✨ Novedad</span>
+                  </td>
+                  <td class="py-4 px-6">
+                    <span class="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-stone-100 text-stone-700 capitalize">
+                      {p.category}
                     </span>
-                  ) : (
-                    <span class="text-xs text-slate-400">Estándar</span>
-                  )}
-                </td>
-                <td class="py-4 px-6">
-                  <span class={`inline-block px-2.5 py-1 text-xs font-bold rounded-full ${
-                    p.status === 'in_stock'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-rose-100 text-rose-700'
-                  }`}>
-                    {p.status === 'in_stock' ? 'En Stock' : 'Agotado'}
-                  </span>
-                </td>
-                <td class="py-4 px-6 text-right space-x-2">
-                  <a
-                    href={`/lentes/${p.id}`}
-                    target="_blank"
-                    class="p-2 text-slate-400 hover:text-cyan-600 hover:bg-slate-100 rounded-lg inline-block transition"
-                    title="Ver ficha pública"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </a>
+                  </td>
+                  <td class="py-4 px-6 font-semibold text-stone-900 tabular-nums">
+                    {p.priceOnRequest ? (
+                      <span class="text-xs text-stone-500 font-normal">Consultar</span>
+                    ) : (
+                      <span>${p.price ? p.price.toLocaleString('es-CL') : '0'}</span>
+                    )}
+                  </td>
+                  <td class="py-4 px-6">
+                    {p.isWeeklyFeature ? (
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/80">
+                        Novedad
+                      </span>
+                    ) : (
+                      <span class="text-xs text-stone-400">Estándar</span>
+                    )}
+                  </td>
+                  <td class="py-4 px-6">
+                    <span
+                      class={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${
+                        inStock ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
+                      }`}
+                    >
+                      <span class={`size-1.5 rounded-full ${inStock ? 'bg-emerald-500' : 'bg-rose-500'}`} aria-hidden="true"></span>
+                      {inStock ? 'En Stock' : 'Agotado'}
+                    </span>
+                  </td>
+                  <td class="py-4 px-6 text-right whitespace-nowrap">
+                    <div class="inline-flex items-center justify-end gap-1">
+                      <a
+                        href={`/lentes/${p.id}`}
+                        target="_blank"
+                        aria-label={`Ver ficha pública de ${p.name}`}
+                        class="size-9 inline-flex items-center justify-center text-stone-400 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+                        title="Ver ficha pública"
+                      >
+                        <svg class="size-4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </a>
 
-                  <a
-                    href={`/admin/products/edit/${p.id}`}
-                    class="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-lg inline-block transition"
-                    title="Editar lente"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </a>
+                      <a
+                        href={`/admin/products/edit/${p.id}`}
+                        aria-label={`Editar ${p.name}`}
+                        class="size-9 inline-flex items-center justify-center text-stone-400 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+                        title="Editar armazón"
+                      >
+                        <svg class="size-4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                      </a>
 
-                  <button
-                    class="btn-delete p-2 text-slate-400 hover:text-rose-600 hover:bg-slate-100 rounded-lg inline-block transition"
-                    data-id={p.id}
-                    data-name={p.name}
-                    title="Eliminar lente"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-            ))
+                      <button
+                        type="button"
+                        aria-label={`Eliminar ${p.name}`}
+                        class="btn-delete size-9 inline-flex items-center justify-center text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        data-id={p.id}
+                        data-name={p.name}
+                        title="Eliminar armazón"
+                      >
+                        <svg class="size-4" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
@@ -207,9 +245,16 @@ if (env?.DB) {
   </div>
 
   <script>
-    // Buscador en tiempo real
     const searchInput = document.getElementById('search-input') as HTMLInputElement;
     const rows = document.querySelectorAll('.product-row') as NodeListOf<HTMLTableRowElement>;
+    const toast = document.getElementById('admin-toast');
+
+    function showToast(msg: string) {
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
 
     searchInput?.addEventListener('input', (e) => {
       const q = (e.target as HTMLInputElement).value.toLowerCase();
@@ -219,7 +264,6 @@ if (env?.DB) {
       });
     });
 
-    // Eliminación de producto (permitido para admin y personal)
     const deleteButtons = document.querySelectorAll('.btn-delete') as NodeListOf<HTMLButtonElement>;
     deleteButtons.forEach((btn) => {
       btn.addEventListener('click', async () => {
@@ -232,14 +276,15 @@ if (env?.DB) {
           try {
             const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
             if (res.ok) {
-              window.location.reload();
+              showToast(`"${name}" eliminado del catálogo`);
+              setTimeout(() => window.location.reload(), 600);
             } else {
               const data: any = await res.json();
-              alert(data.error || 'Error al eliminar el producto');
+              showToast(data.error || 'Error al eliminar el producto');
               btn.disabled = false;
             }
           } catch (err: any) {
-            alert('Error al comunicarse con el servidor: ' + err.message);
+            showToast('Error al comunicarse con el servidor');
             btn.disabled = false;
           }
         }
