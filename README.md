@@ -1,6 +1,10 @@
 # 👓 Óptica Visión - Web, Catálogo y Panel de Administración
 
-Sitio web y catálogo profesional para óptica desarrollado con **Astro 5 (SSR)**, diseñado específicamente para desplegarse en la **capa 100% gratuita de Cloudflare** utilizando **Cloudflare D1 (SQLite)**, **Cloudflare R2** para almacenamiento de imágenes, autenticación con **Better Auth** con roles, **Drizzle ORM** y **Tailwind CSS v4**.
+Sitio web y catálogo profesional para óptica desarrollado con **Astro 5 (SSR)**, diseñado específicamente para desplegarse en la **capa 100% gratuita de Cloudflare** utilizando **Cloudflare D1 (SQLite)**, autenticación con **Better Auth** con roles, **Drizzle ORM** y **Tailwind CSS v4**.
+
+* **Repositorio GitHub**: `https://github.com/xngar/optica-lens-web`
+* **Producción (Cloudflare Pages CI/CD)**: `https://optica-lens-web-pages.pages.dev`
+* **Producción (Cloudflare Workers)**: `https://optica-lens-web.mantonio-zr.workers.dev`
 
 ---
 
