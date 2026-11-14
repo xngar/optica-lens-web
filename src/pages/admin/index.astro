@@ -1,0 +1,249 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getDb, products, productImages } from '../../db';
+import { desc } from 'drizzle-orm';
+import type { Env } from '../../types';
+
+const env = Astro.locals.runtime?.env as Env;
+
+let allProducts: any[] = [];
+let weeklyCount = 0;
+let inStockCount = 0;
+
+if (env?.DB) {
+  try {
+    const db = getDb(env.DB);
+    const prods = await db.select().from(products).orderBy(desc(products.createdAt));
+    const imgs = await db.select().from(productImages);
+
+    allProducts = prods.map((p) => {
+      const prodImgs = imgs.filter((i) => i.productId === p.id).sort((a, b) => a.orderIndex - b.orderIndex);
+      return {
+        ...p,
+        primaryImage: prodImgs.find((i) => i.isPrimary)?.imageUrl || prodImgs[0]?.imageUrl || 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=400&q=80',
+      };
+    });
+
+    weeklyCount = allProducts.filter((p) => p.isWeeklyFeature).length;
+    inStockCount = allProducts.filter((p) => p.status === 'in_stock').length;
+  } catch (e) {
+    console.error('Error fetching admin products:', e);
+  }
+}
+---
+
+<AdminLayout title="Gestión de Lentes y Catálogo" activeTab="products">
+  <!-- Tarjetas de métricas -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-xl font-bold">
+        👓
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total en Catálogo</p>
+        <p class="text-2xl font-black text-slate-900">{allProducts.length}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+        ✨
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Novedades de la Semana</p>
+        <p class="text-2xl font-black text-slate-900">{weeklyCount}</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+        📦
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Lentes en Stock</p>
+        <p class="text-2xl font-black text-slate-900">{inStockCount}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Acciones y Filtro -->
+  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+    <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="w-full sm:w-96 relative">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Buscar por marca, modelo o nombre..."
+          class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+
+      <a
+        href="/admin/products/new"
+        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm shadow-sm transition"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Subir Nuevo Lente</span>
+      </a>
+    </div>
+
+    <!-- Tabla -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="products-table">
+        <thead>
+          <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+            <th class="py-3.5 px-6">Lente / Modelo</th>
+            <th class="py-3.5 px-6">Categoría</th>
+            <th class="py-3.5 px-6">Precio</th>
+            <th class="py-3.5 px-6">Novedad Semanal</th>
+            <th class="py-3.5 px-6">Stock</th>
+            <th class="py-3.5 px-6 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          {allProducts.length === 0 ? (
+            <tr>
+              <td colspan="6" class="py-12 text-center text-slate-400">
+                No hay lentes registrados en el catálogo aún. ¡Haz clic en "Subir Nuevo Lente"!
+              </td>
+            </tr>
+          ) : (
+            allProducts.map((p) => (
+              <tr class="hover:bg-slate-50/80 transition product-row" data-search={`${p.brand} ${p.name} ${p.modelCode || ''} ${p.category}`}>
+                <td class="py-4 px-6">
+                  <div class="flex items-center gap-3">
+                    <img
+                      src={p.primaryImage}
+                      alt={p.name}
+                      class="w-14 h-14 object-cover rounded-xl bg-slate-100 border border-slate-200 shrink-0"
+                      loading="lazy"
+                    />
+                    <div>
+                      <p class="font-bold text-slate-900 leading-tight">{p.name}</p>
+                      <p class="text-xs text-slate-500 font-medium">
+                        {p.brand} {p.modelCode ? `• Ref: ${p.modelCode}` : ''}
+                      </p>
+                      <p class="text-[11px] text-slate-400 mt-0.5">
+                        Color: {p.color} {p.dimensions ? `| ${p.dimensions}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <span class="inline-block px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 capitalize">
+                    {p.category}
+                  </span>
+                </td>
+                <td class="py-4 px-6 font-semibold text-slate-900">
+                  {p.priceOnRequest ? (
+                    <span class="text-xs text-slate-500 italic">Consultar</span>
+                  ) : (
+                    <span>${p.price ? p.price.toLocaleString('es-CL') : '0'}</span>
+                  )}
+                </td>
+                <td class="py-4 px-6">
+                  {p.isWeeklyFeature ? (
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                      <span>✨ Novedad</span>
+                    </span>
+                  ) : (
+                    <span class="text-xs text-slate-400">Estándar</span>
+                  )}
+                </td>
+                <td class="py-4 px-6">
+                  <span class={`inline-block px-2.5 py-1 text-xs font-bold rounded-full ${
+                    p.status === 'in_stock'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-rose-100 text-rose-700'
+                  }`}>
+                    {p.status === 'in_stock' ? 'En Stock' : 'Agotado'}
+                  </span>
+                </td>
+                <td class="py-4 px-6 text-right space-x-2">
+                  <a
+                    href={`/lentes/${p.id}`}
+                    target="_blank"
+                    class="p-2 text-slate-400 hover:text-cyan-600 hover:bg-slate-100 rounded-lg inline-block transition"
+                    title="Ver ficha pública"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </a>
+
+                  <a
+                    href={`/admin/products/edit/${p.id}`}
+                    class="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-lg inline-block transition"
+                    title="Editar lente"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </a>
+
+                  <button
+                    class="btn-delete p-2 text-slate-400 hover:text-rose-600 hover:bg-slate-100 rounded-lg inline-block transition"
+                    data-id={p.id}
+                    data-name={p.name}
+                    title="Eliminar lente"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Buscador en tiempo real
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const rows = document.querySelectorAll('.product-row') as NodeListOf<HTMLTableRowElement>;
+
+    searchInput?.addEventListener('input', (e) => {
+      const q = (e.target as HTMLInputElement).value.toLowerCase();
+      rows.forEach((row) => {
+        const text = row.getAttribute('data-search')?.toLowerCase() || '';
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+
+    // Eliminación de producto (permitido para admin y personal)
+    const deleteButtons = document.querySelectorAll('.btn-delete') as NodeListOf<HTMLButtonElement>;
+    deleteButtons.forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        if (!id) return;
+
+        if (confirm(`¿Estás seguro de que deseas eliminar "${name}" del catálogo? Esta acción no se puede deshacer.`)) {
+          btn.disabled = true;
+          try {
+            const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+              window.location.reload();
+            } else {
+              const data: any = await res.json();
+              alert(data.error || 'Error al eliminar el producto');
+              btn.disabled = false;
+            }
+          } catch (err: any) {
+            alert('Error al comunicarse con el servidor: ' + err.message);
+            btn.disabled = false;
+          }
+        }
+      });
+    });
+  </script>
+</AdminLayout>

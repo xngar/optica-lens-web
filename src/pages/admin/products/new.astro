@@ -1,0 +1,468 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Subir Nuevo Lente al Catálogo" activeTab="new-product">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Ficha del Nuevo Lente</h2>
+        <p class="text-xs text-slate-500">Completa la ficha técnica y sube las fotos que se publicarán en la web.</p>
+      </div>
+      <a href="/admin" class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+        ← Volver al listado
+      </a>
+    </div>
+
+    <form id="product-form" class="space-y-8">
+      <!-- Sección 1: Información Principal -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <span>1. Información General</span>
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Nombre o Modelo Comercial *
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              placeholder="Ej: Aviator Classic Polarized"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Marca / Fabricante *
+            </label>
+            <input
+              type="text"
+              name="brand"
+              required
+              placeholder="Ej: Ray-Ban, Oakley, Silhouette"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Código / Referencia de Fábrica
+            </label>
+            <input
+              type="text"
+              name="modelCode"
+              placeholder="Ej: RB3025-001/58"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Categoría de Lente *
+            </label>
+            <select
+              name="category"
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+            >
+              <option value="opticos">Lentes Ópticos / Graduados</option>
+              <option value="sol">Lentes de Sol</option>
+              <option value="filtro-azul">Filtro de Luz Azul (Pantallas)</option>
+              <option value="lectura">Lentes de Lectura</option>
+              <option value="infantil">Colección Infantil</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Público / Género *
+            </label>
+            <select
+              name="gender"
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+            >
+              <option value="unisex">Unisex</option>
+              <option value="hombre">Hombre</option>
+              <option value="mujer">Mujer</option>
+              <option value="infantil">Infantil</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Color y Acabado *
+            </label>
+            <input
+              type="text"
+              name="color"
+              required
+              placeholder="Ej: Negro Mate / Carey Dorado"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 2: Ficha Técnica -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <span>2. Ficha Técnica y Medidas</span>
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Material del Armazón
+            </label>
+            <select
+              name="frameMaterial"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+            >
+              <option value="acetato">Acetato Italiano</option>
+              <option value="metal">Metal / Acero Inox</option>
+              <option value="titanio">Titanio Ultraliviano</option>
+              <option value="tr90">TR90 Flexible</option>
+              <option value="mixto">Mixto (Metal y Acetato)</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Forma del Armazón
+            </label>
+            <select
+              name="frameShape"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+            >
+              <option value="cuadrado">Cuadrado</option>
+              <option value="redondo">Redondo</option>
+              <option value="aviador">Aviador</option>
+              <option value="cat-eye">Cat-Eye (Ojo de Gato)</option>
+              <option value="rectangular">Rectangular</option>
+              <option value="geometrico">Geométrico</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Medidas (Calibre-Puente-Varilla)
+            </label>
+            <input
+              type="text"
+              name="dimensions"
+              placeholder="Ej: 52-18-140"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            Descripción y Tratamientos Ópticos
+          </label>
+          <textarea
+            name="description"
+            rows="3"
+            placeholder="Detalles adicionales, tipo de cristales compatibles, peso, bisagras flex, etc."
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Sección 3: Precio, Stock y Novedad Semanal -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <span>3. Precio, Stock y Novedades</span>
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Precio (CLP)
+            </label>
+            <input
+              type="number"
+              name="price"
+              id="price-input"
+              placeholder="Ej: 89990"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+            <label class="mt-2 flex items-center gap-2 cursor-pointer text-xs text-slate-600">
+              <input type="checkbox" name="priceOnRequest" id="price-on-request" class="rounded text-cyan-600 focus:ring-cyan-500" />
+              <span>Precio a consultar en tienda</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Disponibilidad / Estado
+            </label>
+            <select
+              name="status"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+            >
+              <option value="in_stock">En Stock Inmediato</option>
+              <option value="out_of_stock">Agotado Temporalmente</option>
+              <option value="preorder">Bajo Pedido</option>
+            </select>
+          </div>
+
+          <div class="p-4 rounded-xl bg-amber-50 border border-amber-200/80">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isWeeklyFeature"
+                class="mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
+                checked
+              />
+              <div>
+                <span class="block text-xs font-bold text-amber-900 uppercase tracking-wider">
+                  ✨ Destacar en la Semana
+                </span>
+                <span class="text-xs text-amber-700 mt-0.5 block leading-relaxed">
+                  Aparecerá en el banner principal y en "Novedades de la Semana" de la portada.
+                </span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 4: Subida de Fotos con Optimización Automática -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">4. Fotos del Lente (Cloudflare R2)</h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Las fotos se comprimen automáticamente en tu navegador a formato WebP optimizado antes de subirse.
+            </p>
+          </div>
+          <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+            ⚡ WebP Automático
+          </span>
+        </div>
+
+        <!-- Zona de Carga -->
+        <div
+          id="dropzone"
+          class="border-2 border-dashed border-slate-300 hover:border-cyan-500 rounded-2xl p-8 text-center cursor-pointer transition bg-slate-50/50 hover:bg-cyan-50/20"
+        >
+          <input
+            type="file"
+            id="file-input"
+            accept="image/*"
+            multiple
+            class="hidden"
+          />
+          <div class="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center mx-auto mb-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p class="text-sm font-bold text-slate-700">Arrastra tus fotos aquí o haz clic para seleccionar</p>
+          <p class="text-xs text-slate-400 mt-1">Soporta JPG, PNG, WEBP. Puedes seleccionar varias a la vez.</p>
+        </div>
+
+        <!-- Previsualizador de Fotos Subidas -->
+        <div id="image-preview-container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 hidden">
+          <!-- Miniaturas dinámicas -->
+        </div>
+
+        <div id="upload-status" class="hidden text-xs font-semibold text-cyan-700 p-3 rounded-xl bg-cyan-50 border border-cyan-200">
+          <span id="upload-status-text">Procesando y subiendo imágenes...</span>
+        </div>
+      </div>
+
+      <!-- Barra de Envío -->
+      <div class="flex items-center justify-end gap-4 pt-4">
+        <a
+          href="/admin"
+          class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-100 transition"
+        >
+          Cancelar
+        </a>
+        <button
+          type="submit"
+          id="btn-save"
+          class="px-7 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white text-sm font-bold shadow-md shadow-cyan-600/20 transition flex items-center gap-2"
+        >
+          <span id="btn-save-text">Publicar en el Catálogo</span>
+          <svg id="btn-save-spinner" class="hidden animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    import { optimizeImageForUpload } from '../../../lib/image-optimizer';
+
+    const dropzone = document.getElementById('dropzone') as HTMLDivElement;
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    const previewContainer = document.getElementById('image-preview-container') as HTMLDivElement;
+    const uploadStatus = document.getElementById('upload-status') as HTMLDivElement;
+    const uploadStatusText = document.getElementById('upload-status-text') as HTMLSpanElement;
+    const productForm = document.getElementById('product-form') as HTMLFormElement;
+    const btnSave = document.getElementById('btn-save') as HTMLButtonElement;
+    const btnSaveText = document.getElementById('btn-save-text') as HTMLSpanElement;
+    const btnSaveSpinner = document.getElementById('btn-save-spinner') as HTMLElement;
+    const priceOnRequest = document.getElementById('price-on-request') as HTMLInputElement;
+    const priceInput = document.getElementById('price-input') as HTMLInputElement;
+
+    // Control de precio a consultar
+    priceOnRequest.addEventListener('change', () => {
+      if (priceOnRequest.checked) {
+        priceInput.value = '';
+        priceInput.disabled = true;
+      } else {
+        priceInput.disabled = false;
+      }
+    });
+
+    const uploadedImageUrls: string[] = [];
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-cyan-500', 'bg-cyan-50/40');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-cyan-500', 'bg-cyan-50/40');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-cyan-500', 'bg-cyan-50/40');
+      if (e.dataTransfer?.files) {
+        handleFiles(Array.from(e.dataTransfer.files));
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files) {
+        handleFiles(Array.from(fileInput.files));
+      }
+    });
+
+    async function handleFiles(files: File[]) {
+      if (files.length === 0) return;
+
+      uploadStatus.classList.remove('hidden');
+      uploadStatusText.textContent = `Optimizando y subiendo ${files.length} foto(s) a Cloudflare R2...`;
+
+      try {
+        const formData = new FormData();
+
+        for (const file of files) {
+          // Optimización y compresión en cliente antes de subir
+          uploadStatusText.textContent = `Comprimiendo "${file.name}" a WebP...`;
+          const optimizedFile = await optimizeImageForUpload(file);
+          formData.append('files', optimizedFile);
+        }
+
+        uploadStatusText.textContent = `Subiendo a Cloudflare R2...`;
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data: any = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Error al subir fotos');
+        }
+
+        const urls = data.urls || [data.url];
+        urls.forEach((url: string) => {
+          uploadedImageUrls.push(url);
+          renderPreview(url);
+        });
+
+        uploadStatus.classList.add('hidden');
+      } catch (err: any) {
+        alert('Error al subir fotos: ' + err.message);
+        uploadStatus.classList.add('hidden');
+      }
+    }
+
+    function renderPreview(url: string) {
+      previewContainer.classList.remove('hidden');
+      const card = document.createElement('div');
+      card.className = 'relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-square';
+      card.innerHTML = `
+        <img src="${url}" class="w-full h-full object-cover" />
+        <button type="button" class="absolute top-2 right-2 bg-rose-600 text-white p-1 rounded-lg opacity-80 hover:opacity-100 transition" title="Quitar">
+          ✕
+        </button>
+      `;
+
+      card.querySelector('button')?.addEventListener('click', () => {
+        const idx = uploadedImageUrls.indexOf(url);
+        if (idx !== -1) uploadedImageUrls.splice(idx, 1);
+        card.remove();
+        if (uploadedImageUrls.length === 0) {
+          previewContainer.classList.add('hidden');
+        }
+      });
+
+      previewContainer.appendChild(card);
+    }
+
+    // Envío del formulario
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btnSave.disabled = true;
+      btnSaveText.textContent = 'Guardando lente...';
+      btnSaveSpinner.classList.remove('hidden');
+
+      const formData = new FormData(productForm);
+      const payload = {
+        name: formData.get('name'),
+        brand: formData.get('brand'),
+        modelCode: formData.get('modelCode'),
+        category: formData.get('category'),
+        gender: formData.get('gender'),
+        color: formData.get('color'),
+        frameMaterial: formData.get('frameMaterial'),
+        frameShape: formData.get('frameShape'),
+        dimensions: formData.get('dimensions'),
+        description: formData.get('description'),
+        price: formData.get('price') ? Number(formData.get('price')) : null,
+        priceOnRequest: formData.get('priceOnRequest') === 'on',
+        status: formData.get('status'),
+        isWeeklyFeature: formData.get('isWeeklyFeature') === 'on',
+        images: uploadedImageUrls,
+      };
+
+      try {
+        const res = await fetch('/api/products', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data: any = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Error al guardar el producto');
+        }
+
+        window.location.href = '/admin';
+      } catch (err: any) {
+        alert('Error: ' + err.message);
+        btnSave.disabled = false;
+        btnSaveText.textContent = 'Publicar en el Catálogo';
+        btnSaveSpinner.classList.add('hidden');
+      }
+    });
+  </script>
+</AdminLayout>

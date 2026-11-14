@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "optica-lens-web",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2024-12-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "optica-db",
+      "database_id": "ea53043e-bd36-4d5e-8723-0d8775e370cc",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:4321",
+    "BETTER_AUTH_SECRET": "optica_secret_change_in_production_min_32_characters"
+  }
+}

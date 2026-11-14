@@ -1,0 +1,300 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getDb, products, productImages, siteSettings } from '../db';
+import { desc, eq } from 'drizzle-orm';
+import type { Env } from '../types';
+
+const env = Astro.locals.runtime?.env as Env;
+let weeklyProducts: any[] = [];
+let opticalName = 'Óptica Visión Moderna';
+let whatsappNumber = '+56912345678';
+
+if (env?.DB) {
+  try {
+    const db = getDb(env.DB);
+    const settings = await db.select().from(siteSettings);
+    settings.forEach((s) => {
+      if (s.key === 'optical_name') opticalName = s.value;
+      if (s.key === 'whatsapp_number') whatsappNumber = s.value;
+    });
+
+    const prods = await db
+      .select()
+      .from(products)
+      .where(eq(products.isWeeklyFeature, true))
+      .orderBy(desc(products.createdAt))
+      .limit(6);
+
+    const imgs = await db.select().from(productImages);
+
+    weeklyProducts = prods.map((p) => {
+      const prodImgs = imgs.filter((i) => i.productId === p.id).sort((a, b) => a.orderIndex - b.orderIndex);
+      return {
+        ...p,
+        primaryImage: prodImgs.find((i) => i.isPrimary)?.imageUrl || prodImgs[0]?.imageUrl || 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80',
+      };
+    });
+  } catch (e) {
+    console.error('Error fetching weekly products:', e);
+  }
+}
+
+const cleanWhatsapp = whatsappNumber.replace(/[^0-9]/g, '');
+---
+
+<Layout title={`${opticalName} | Catálogo de Lentes y Novedades Semanales`}>
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-cyan-50/60 via-white to-slate-50 pt-12 pb-20 border-b border-slate-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <!-- Texto del Hero -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-100/80 border border-cyan-200 text-cyan-800 text-xs font-bold tracking-wide">
+            <span class="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
+            <span>Ingresos y Colecciones Actualizadas Semanalmente</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.1]">
+            El armazón perfecto para tu <span class="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">estilo y visión</span>.
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            Explora las últimas tendencias en lentes ópticos, de sol y descanso con filtro de luz azul. Subimos nuevos modelos cada semana para que encuentres tu favorito y lo pruebes en nuestra óptica.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <a
+              href="/catalogo"
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 text-white font-bold text-base shadow-lg shadow-cyan-600/25 transition text-center"
+            >
+              Ver Todo el Catálogo
+            </a>
+            <a
+              href="/catalogo?weekly=true"
+              class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-800 font-bold text-base border border-slate-200 shadow-xs transition text-center flex items-center justify-center gap-2"
+            >
+              <span>✨ Novedades de la Semana</span>
+            </a>
+          </div>
+
+          <!-- Puntos destacados de confianza -->
+          <div class="pt-6 grid grid-cols-3 gap-4 border-t border-slate-200/80 text-left">
+            <div>
+              <p class="font-bold text-slate-900 text-base sm:text-lg">100%</p>
+              <p class="text-xs text-slate-500">Protección UV & Filtro</p>
+            </div>
+            <div>
+              <p class="font-bold text-slate-900 text-base sm:text-lg">Semanal</p>
+              <p class="text-xs text-slate-500">Nuevos ingresos de stock</p>
+            </div>
+            <div>
+              <p class="font-bold text-slate-900 text-base sm:text-lg">Asesoría</p>
+              <p class="text-xs text-slate-500">Atención personalizada</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Imagen del Hero -->
+        <div class="lg:col-span-5 relative">
+          <div class="relative mx-auto max-w-md lg:max-w-none">
+            <div class="absolute -inset-4 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-3xl opacity-20 blur-2xl"></div>
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
+              <img
+                src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80"
+                alt="Armazones y Lentes Ópticos de Diseño"
+                class="w-full h-[420px] object-cover"
+                loading="eager"
+              />
+              <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-white/60 shadow-lg">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-cyan-600 block">Novedad Semanal</span>
+                    <span class="text-sm font-bold text-slate-900">Diseños Exclusivos 2026</span>
+                  </div>
+                  <a
+                    href="/catalogo?weekly=true"
+                    class="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition"
+                  >
+                    Ver Lentes
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección: Novedades de la Semana -->
+  <section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">
+            <span>🔥 Recién Llegados</span>
+          </div>
+          <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Novedades de la Semana</h2>
+          <p class="text-sm text-slate-500 mt-1">
+            Los modelos más recientes subidos por nuestro equipo de óptica.
+          </p>
+        </div>
+        <a
+          href="/catalogo?weekly=true"
+          class="text-sm font-bold text-cyan-600 hover:text-cyan-700 flex items-center gap-1 group transition"
+        >
+          <span>Ver todas las novedades ({weeklyProducts.length})</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {weeklyProducts.map((p) => {
+          const whatsappMsg = encodeURIComponent(
+            `Hola ${opticalName}, me interesa probarme el modelo ${p.name} (${p.brand}) que vi en su web como Novedad de la Semana.`
+          );
+          const consultLink = `https://wa.me/${cleanWhatsapp}?text=${whatsappMsg}`;
+
+          return (
+            <div class="group bg-slate-50 rounded-3xl overflow-hidden border border-slate-200/80 hover:shadow-xl hover:border-cyan-300 transition-all duration-300 flex flex-col">
+              <a href={`/lentes/${p.id}`} class="relative block overflow-hidden bg-white aspect-[4/3]">
+                <img
+                  src={p.primaryImage}
+                  alt={p.name}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <span class="absolute top-3 left-3 bg-amber-500 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
+                  <span>✨ Novedad</span>
+                </span>
+                <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-xs text-slate-700 text-xs font-bold uppercase px-2.5 py-1 rounded-full border border-slate-200">
+                  {p.category}
+                </span>
+              </a>
+
+              <div class="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">{p.brand}</p>
+                  <a href={`/lentes/${p.id}`} class="block mt-1">
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-cyan-600 transition leading-snug">
+                      {p.name}
+                    </h3>
+                  </a>
+                  <p class="text-xs text-slate-500 mt-1 line-clamp-2">
+                    {p.description || `Armazón ${p.frameMaterial || ''} en color ${p.color}.`}
+                  </p>
+                </div>
+
+                <div class="pt-6 mt-4 border-t border-slate-200/60 flex items-center justify-between">
+                  <div>
+                    {p.priceOnRequest ? (
+                      <span class="text-xs font-semibold text-slate-500 italic">Consultar precio</span>
+                    ) : (
+                      <div>
+                        <span class="text-[10px] text-slate-400 uppercase block">Precio Ref</span>
+                        <span class="text-lg font-black text-slate-900">${p.price?.toLocaleString('es-CL')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <a
+                      href={`/lentes/${p.id}`}
+                      class="px-3 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition"
+                    >
+                      Ficha
+                    </a>
+                    <a
+                      href={consultLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1"
+                      title="Consultar por WhatsApp"
+                    >
+                      <span>💬 Probar</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Categorías Rápidas -->
+  <section class="py-16 bg-slate-50 border-t border-slate-200/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Encuentra según tu Necesidad</h2>
+        <p class="text-sm text-slate-500 mt-2">Filtra rápidamente por la categoría de armazón que estás buscando.</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <a href="/catalogo?category=opticos" class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-cyan-500 hover:shadow-lg transition text-center">
+          <div class="w-14 h-14 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center text-2xl mx-auto mb-3 group-hover:scale-110 transition">
+            👓
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Lentes Ópticos</h3>
+          <p class="text-xs text-slate-500 mt-1">Armazones graduados y descanso</p>
+        </a>
+
+        <a href="/catalogo?category=sol" class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-amber-500 hover:shadow-lg transition text-center">
+          <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-3 group-hover:scale-110 transition">
+            🕶️
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Lentes de Sol</h3>
+          <p class="text-xs text-slate-500 mt-1">Polarizados y protección UV400</p>
+        </a>
+
+        <a href="/catalogo?category=filtro-azul" class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-blue-500 hover:shadow-lg transition text-center">
+          <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl mx-auto mb-3 group-hover:scale-110 transition">
+            💻
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Filtro Luz Azul</h3>
+          <p class="text-xs text-slate-500 mt-1">Para computadores y pantallas</p>
+        </a>
+
+        <a href="/catalogo?category=infantil" class="group bg-white p-6 rounded-3xl border border-slate-200/80 hover:border-rose-500 hover:shadow-lg transition text-center">
+          <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl mx-auto mb-3 group-hover:scale-110 transition">
+            🧸
+          </div>
+          <h3 class="font-bold text-slate-900 text-base">Línea Infantil</h3>
+          <p class="text-xs text-slate-500 mt-1">Armazones flexibles y seguros</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Banner de Asesoría en Tienda -->
+  <section class="py-16 bg-slate-900 text-white relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div class="max-w-3xl mx-auto space-y-6">
+        <span class="text-cyan-400 font-bold uppercase tracking-wider text-xs">Visítanos y pruébate tus favoritos</span>
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+          ¿No estás seguro de qué forma le queda mejor a tu rostro?
+        </h2>
+        <p class="text-slate-400 text-base leading-relaxed">
+          Nuestros asesores ópticos te ayudarán a elegir el armazón y los cristales más adecuados para tu receta médica y fisonomía. Escríbenos por WhatsApp para coordinar tu visita o consultar por cualquier modelo.
+        </p>
+        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href={`https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(`Hola ${opticalName}, quiero coordinar una visita para probarme lentes.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 font-bold text-white shadow-lg transition flex items-center justify-center gap-2"
+          >
+            <span>💬 Escribir al WhatsApp</span>
+          </a>
+          <a
+            href="/catalogo"
+            class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold border border-slate-700 transition text-center"
+          >
+            Ver Catálogo Online
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

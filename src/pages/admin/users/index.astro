@@ -1,0 +1,224 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getDb, user as userTable } from '../../../db';
+import { desc } from 'drizzle-orm';
+import type { Env, AppUser } from '../../../types';
+
+const currentUser = Astro.locals.user as AppUser;
+if (currentUser?.role !== 'admin') {
+  return Astro.redirect('/admin?error=unauthorized');
+}
+
+const env = Astro.locals.runtime?.env as Env;
+let usersList: any[] = [];
+
+if (env?.DB) {
+  try {
+    const db = getDb(env.DB);
+    usersList = await db
+      .select({
+        id: userTable.id,
+        name: userTable.name,
+        email: userTable.email,
+        role: userTable.role,
+        createdAt: userTable.createdAt,
+      })
+      .from(userTable)
+      .orderBy(desc(userTable.createdAt));
+  } catch (e) {
+    console.error('Error fetching users:', e);
+  }
+}
+---
+
+<AdminLayout title="Gestión de Personal y Cuentas" activeTab="users">
+  <div class="max-w-5xl mx-auto space-y-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Personal de Óptica y Accesos</h2>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Solo tú como Administrador puedes crear o revocar cuentas de acceso para el equipo.
+        </p>
+      </div>
+      <button
+        id="btn-open-create-modal"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm shadow-sm transition"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Agregar Personal</span>
+      </button>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
+              <th class="py-3.5 px-6">Usuario / Nombre</th>
+              <th class="py-3.5 px-6">Correo Electrónico</th>
+              <th class="py-3.5 px-6">Rol Asignado</th>
+              <th class="py-3.5 px-6">Permisos Clave</th>
+              <th class="py-3.5 px-6 text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            {usersList.map((u) => {
+              const isSelf = u.id === currentUser.id;
+              const isAdmin = u.role === 'admin';
+              return (
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-4 px-6">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-xs">
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p class="font-bold text-slate-900">
+                          {u.name} {isSelf && <span class="text-xs text-cyan-600 font-normal">(Tú)</span>}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 px-6 text-slate-600">{u.email}</td>
+                  <td class="py-4 px-6">
+                    <span class={`px-2.5 py-1 text-xs font-bold rounded-full ${
+                      isAdmin ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {isAdmin ? 'Administrador' : 'Personal Óptica'}
+                    </span>
+                  </td>
+                  <td class="py-4 px-6 text-xs text-slate-500">
+                    {isAdmin ? 'Control total + Usuarios' : 'Subir, editar y borrar lentes'}
+                  </td>
+                  <td class="py-4 px-6 text-right">
+                    {isSelf ? (
+                      <span class="text-xs text-slate-400 italic">Sesión activa</span>
+                    ) : (
+                      <button
+                        class="btn-delete-user text-xs font-bold text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition"
+                        data-id={u.id}
+                        data-name={u.name}
+                      >
+                        Eliminar Acceso
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal para Crear Nuevo Usuario -->
+    <div id="modal-create-user" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Dar de Alta Personal</h3>
+            <p class="text-xs text-slate-500">Crea una cuenta para que un miembro del equipo gestione el catálogo.</p>
+          </div>
+          <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">✕</button>
+        </div>
+
+        <form id="form-create-user" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nombre Completo *</label>
+            <input type="text" name="name" required placeholder="Ej: Marcela Gómez" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Correo Electrónico *</label>
+            <input type="email" name="email" required placeholder="marcela@optica.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Contraseña Inicial *</label>
+            <input type="password" name="password" required placeholder="Mínimo 8 caracteres" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Rol en el Sistema *</label>
+            <select name="role" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500 bg-white">
+              <option value="staff" selected>Personal de Óptica (Subir fotos y fichas de lentes)</option>
+              <option value="admin">Administrador (Control total + Gestión de usuarios)</option>
+            </select>
+          </div>
+
+          <div class="pt-4 flex items-center justify-end gap-3">
+            <button type="button" id="btn-cancel-modal" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-100 transition">Cancelar</button>
+            <button type="submit" id="btn-submit-user" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold shadow-sm transition">Crear Acceso</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal-create-user') as HTMLDivElement;
+    const btnOpen = document.getElementById('btn-open-create-modal') as HTMLButtonElement;
+    const btnClose = document.getElementById('btn-close-modal') as HTMLButtonElement;
+    const btnCancel = document.getElementById('btn-cancel-modal') as HTMLButtonElement;
+    const form = document.getElementById('form-create-user') as HTMLFormElement;
+
+    btnOpen?.addEventListener('click', () => modal.classList.remove('hidden'));
+    btnClose?.addEventListener('click', () => modal.classList.add('hidden'));
+    btnCancel?.addEventListener('click', () => modal.classList.add('hidden'));
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const payload = {
+        name: fd.get('name'),
+        email: fd.get('email'),
+        password: fd.get('password'),
+        role: fd.get('role'),
+      };
+
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data: any = await res.json();
+        if (res.ok) {
+          alert('¡Personal registrado exitosamente!');
+          window.location.reload();
+        } else {
+          alert(data.error || 'Error al crear usuario');
+        }
+      } catch (err: any) {
+        alert('Error: ' + err.message);
+      }
+    });
+
+    // Eliminar usuario
+    document.querySelectorAll('.btn-delete-user').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        if (!id) return;
+
+        if (confirm(`¿Revocar acceso al usuario "${name}"?`)) {
+          try {
+            const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+              window.location.reload();
+            } else {
+              const d: any = await res.json();
+              alert(d.error || 'Error al eliminar usuario');
+            }
+          } catch (err: any) {
+            alert('Error: ' + err.message);
+          }
+        }
+      });
+    });
+  </script>
+</AdminLayout>

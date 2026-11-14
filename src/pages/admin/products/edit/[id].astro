@@ -1,0 +1,264 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { getDb, products, productImages } from '../../../../db';
+import { eq } from 'drizzle-orm';
+import type { Env } from '../../../../types';
+
+const env = Astro.locals.runtime?.env as Env;
+const id = Astro.params.id;
+
+if (!id || !env?.DB) {
+  return Astro.redirect('/admin');
+}
+
+const db = getDb(env.DB);
+const productList = await db.select().from(products).where(eq(products.id, id));
+
+if (productList.length === 0) {
+  return Astro.redirect('/admin');
+}
+
+const product = productList[0];
+const images = await db.select().from(productImages).where(eq(productImages.productId, id));
+const existingImages = images.sort((a, b) => a.orderIndex - b.orderIndex).map((img) => img.imageUrl);
+---
+
+<AdminLayout title={`Editar: ${product.name}`} activeTab="products">
+  <div class="max-w-4xl mx-auto">
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Editar Lente</h2>
+        <p class="text-xs text-slate-500">Modifica los detalles, actualiza stock o cambia las fotos.</p>
+      </div>
+      <a href="/admin" class="text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+        ← Volver al listado
+      </a>
+    </div>
+
+    <form id="edit-form" class="space-y-8" data-id={product.id}>
+      <!-- Sección 1 -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">1. Información General</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nombre o Modelo *</label>
+            <input type="text" name="name" required value={product.name} class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Marca *</label>
+            <input type="text" name="brand" required value={product.brand} class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Código / Referencia</label>
+            <input type="text" name="modelCode" value={product.modelCode || ''} class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Categoría *</label>
+            <select name="category" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500 bg-white">
+              <option value="opticos" selected={product.category === 'opticos'}>Lentes Ópticos</option>
+              <option value="sol" selected={product.category === 'sol'}>Lentes de Sol</option>
+              <option value="filtro-azul" selected={product.category === 'filtro-azul'}>Filtro de Luz Azul</option>
+              <option value="lectura" selected={product.category === 'lectura'}>Lentes de Lectura</option>
+              <option value="infantil" selected={product.category === 'infantil'}>Infantil</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Público / Género *</label>
+            <select name="gender" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500 bg-white">
+              <option value="unisex" selected={product.gender === 'unisex'}>Unisex</option>
+              <option value="hombre" selected={product.gender === 'hombre'}>Hombre</option>
+              <option value="mujer" selected={product.gender === 'mujer'}>Mujer</option>
+              <option value="infantil" selected={product.gender === 'infantil'}>Infantil</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Color y Acabado *</label>
+            <input type="text" name="color" required value={product.color} class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 2 -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">2. Ficha Técnica</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Material</label>
+            <input type="text" name="frameMaterial" value={product.frameMaterial || ''} placeholder="Acetato, Titanio, etc." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Forma</label>
+            <input type="text" name="frameShape" value={product.frameShape || ''} placeholder="Aviador, Redondo, etc." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Medidas</label>
+            <input type="text" name="dimensions" value={product.dimensions || ''} placeholder="52-18-140" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Descripción</label>
+          <textarea name="description" rows="3" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500">{product.description || ''}</textarea>
+        </div>
+      </div>
+
+      <!-- Sección 3 -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">3. Precio, Stock y Novedades</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Precio (CLP)</label>
+            <input type="number" name="price" id="price-input" value={product.price || ''} disabled={product.priceOnRequest} class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500" />
+            <label class="mt-2 flex items-center gap-2 cursor-pointer text-xs text-slate-600">
+              <input type="checkbox" name="priceOnRequest" id="price-on-request" checked={product.priceOnRequest} class="rounded text-cyan-600" />
+              <span>Precio a consultar en tienda</span>
+            </label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Disponibilidad</label>
+            <select name="status" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-cyan-500 bg-white">
+              <option value="in_stock" selected={product.status === 'in_stock'}>En Stock Inmediato</option>
+              <option value="out_of_stock" selected={product.status === 'out_of_stock'}>Agotado</option>
+              <option value="preorder" selected={product.status === 'preorder'}>Bajo Pedido</option>
+            </select>
+          </div>
+          <div class="p-4 rounded-xl bg-amber-50 border border-amber-200/80">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" name="isWeeklyFeature" class="mt-1 w-4 h-4 rounded text-amber-600" checked={product.isWeeklyFeature} />
+              <div>
+                <span class="block text-xs font-bold text-amber-900 uppercase tracking-wider">✨ Destacar en la Semana</span>
+                <span class="text-xs text-amber-700 mt-0.5 block">Aparece en la sección destacada de la portada.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección 4: Fotos -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">4. Fotos del Lente</h3>
+        <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-cyan-500 rounded-2xl p-6 text-center cursor-pointer transition bg-slate-50/50">
+          <input type="file" id="file-input" accept="image/*" multiple class="hidden" />
+          <p class="text-sm font-bold text-slate-700">Agregar más fotos</p>
+          <p class="text-xs text-slate-400 mt-0.5">Se comprimirán automáticamente a WebP antes de subirse a Cloudflare R2.</p>
+        </div>
+
+        <div id="image-preview-container" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+          <!-- Existentes -->
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-4">
+        <a href="/admin" class="px-5 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-100 transition">Cancelar</a>
+        <button type="submit" id="btn-update" class="px-7 py-3 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold shadow-md transition">
+          Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script define:vars={{ initialImages: existingImages }}>
+    window.__INITIAL_IMAGES__ = initialImages;
+  </script>
+
+  <script>
+    import { optimizeImageForUpload } from '../../../../lib/image-optimizer';
+
+    const form = document.getElementById('edit-form') as HTMLFormElement;
+    const prodId = form.getAttribute('data-id');
+    const dropzone = document.getElementById('dropzone') as HTMLDivElement;
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    const previewContainer = document.getElementById('image-preview-container') as HTMLDivElement;
+    const priceOnRequest = document.getElementById('price-on-request') as HTMLInputElement;
+    const priceInput = document.getElementById('price-input') as HTMLInputElement;
+
+    const currentImages: string[] = [...((window as any).__INITIAL_IMAGES__ || [])];
+
+    priceOnRequest.addEventListener('change', () => {
+      priceInput.disabled = priceOnRequest.checked;
+      if (priceOnRequest.checked) priceInput.value = '';
+    });
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async () => {
+      if (!fileInput.files?.length) return;
+      const files = Array.from(fileInput.files);
+      const formData = new FormData();
+
+      for (const file of files) {
+        const optimized = await optimizeImageForUpload(file);
+        formData.append('files', optimized);
+      }
+
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data: any = await res.json();
+        if (data.urls) {
+          data.urls.forEach((url: string) => {
+            currentImages.push(url);
+            renderPreviews();
+          });
+        }
+      } catch (err: any) {
+        alert('Error al subir: ' + err.message);
+      }
+    });
+
+    function renderPreviews() {
+      previewContainer.innerHTML = '';
+      currentImages.forEach((url, idx) => {
+        const card = document.createElement('div');
+        card.className = 'relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-square';
+        card.innerHTML = `
+          <img src="${url}" class="w-full h-full object-cover" />
+          <button type="button" class="absolute top-2 right-2 bg-rose-600 text-white p-1 rounded-lg opacity-80 hover:opacity-100 transition" title="Eliminar">✕</button>
+        `;
+        card.querySelector('button')?.addEventListener('click', () => {
+          currentImages.splice(idx, 1);
+          renderPreviews();
+        });
+        previewContainer.appendChild(card);
+      });
+    }
+
+    renderPreviews();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const payload = {
+        name: fd.get('name'),
+        brand: fd.get('brand'),
+        modelCode: fd.get('modelCode'),
+        category: fd.get('category'),
+        gender: fd.get('gender'),
+        color: fd.get('color'),
+        frameMaterial: fd.get('frameMaterial'),
+        frameShape: fd.get('frameShape'),
+        dimensions: fd.get('dimensions'),
+        description: fd.get('description'),
+        price: fd.get('price') ? Number(fd.get('price')) : null,
+        priceOnRequest: fd.get('priceOnRequest') === 'on',
+        status: fd.get('status'),
+        isWeeklyFeature: fd.get('isWeeklyFeature') === 'on',
+        images: currentImages,
+      };
+
+      try {
+        const res = await fetch(`/api/products/${prodId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          window.location.href = '/admin';
+        } else {
+          const d: any = await res.json();
+          alert(d.error || 'Error al actualizar');
+        }
+      } catch (err: any) {
+        alert('Error: ' + err.message);
+      }
+    });
+  </script>
+</AdminLayout>
